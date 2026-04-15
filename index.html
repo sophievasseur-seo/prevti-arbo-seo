@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arborescence SEO — Prevti.com</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8f9fa;padding:20px;min-height:100vh}
+h1{font-size:15px;font-weight:600;color:#374151;margin-bottom:4px}
+.subtitle{font-size:12px;color:#6B7280;margin-bottom:16px}
+.wrap{background:#fff;border-radius:12px;padding:16px;border:1px solid #e5e7eb}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:9px;font-size:11px;color:#6B7280;align-items:center}
+.li{display:flex;align-items:center;gap:4px}
+.ls{width:22px;height:11px;border-radius:2px;flex-shrink:0}
+.lb{width:22px;height:11px;border-radius:2px;background:transparent;flex-shrink:0}
+.sp{color:#d1d5db;margin:0 3px}
+svg.tree{display:block;width:100%}
+.nd{cursor:default}.nd.cl{cursor:pointer}.nd.cl:hover{opacity:.85}
+</style>
+</head>
+<body>
+<h1>Arborescence SEO — Prevti.com</h1>
+<p class="subtitle">Recommandations audit sémantique · Requêtes cibles et priorités d'action</p>
+<div class="wrap">
+<div class="leg">
+  <strong style="font-size:11px;color:#111827">Fond :</strong>
+  <div class="li"><div class="ls" style="background:#185FA5"></div>Évén. L1</div>
+  <div class="li"><div class="ls" style="background:#85B7EB"></div>L2</div>
+  <div class="li"><div class="ls" style="background:#B5D4F4"></div>L3</div>
+  <span class="sp">|</span>
+  <div class="li"><div class="ls" style="background:#27500A"></div>Form. L1</div>
+  <div class="li"><div class="ls" style="background:#639922"></div>L2</div>
+  <span class="sp">|</span>
+  <div class="li"><div class="ls" style="background:#1B6B77"></div>Inst. L1</div>
+  <div class="li"><div class="ls" style="background:#5DCAA5"></div>L2</div>
+  <span class="sp">|</span>
+  <div class="li"><div class="ls" style="background:#5F5E5A"></div>Conseil</div>
+  <div class="li"><div class="ls" style="background:#888780"></div>L2</div>
+  <span class="sp">|</span>
+  <div class="li"><div class="ls" style="background:#F5F0E8;border:1px solid #D3D1C7"></div>Blog</div>
+</div>
+<div class="leg">
+  <strong style="font-size:11px;color:#111827">Cadre :</strong>
+  <div class="li"><div class="lb" style="border:2px solid #1D9E75"></div>OK / maintenir</div>
+  <div class="li"><div class="lb" style="border:2px solid #EF9F27"></div>À optimiser</div>
+  <div class="li"><div class="lb" style="border:2px solid #E24B4A"></div>À créer</div>
+  <div class="li"><div class="lb" style="border:2px solid #378ADD"></div>Performant</div>
+  <div class="li"><div class="lb" style="border:1.5px dashed #888780"></div>Contenu interne</div>
+  <span class="sp">|</span>
+  <span style="font-size:10px">Ligne basse : <span style="color:#6B7280;font-style:italic">requête cible</span> ou <span style="color:#EF9F27;font-weight:600">→ renommage</span></span>
+</div>
+<canvas id="sz" style="display:none"></canvas>
+<svg id="tree" class="tree"></svg>
+</div>
+
+<script>
+const ns='http://www.w3.org/2000/svg';
+const RH=46,GAP=5,CGAP=14,PX=10,IND=28;
+const COL={
+  event:  {L1:{f:'#185FA5',t:'#E6F1FB'},L2:{f:'#85B7EB',t:'#042C53'},L3:{f:'#B5D4F4',t:'#0C447C'}},
+  form:   {L1:{f:'#27500A',t:'#EAF3DE'},L2:{f:'#639922',t:'#EAF3DE'},L3:{f:'#C0DD97',t:'#173404'}},
+  inst:   {L1:{f:'#1B6B77',t:'#E1F5EE'},L2:{f:'#5DCAA5',t:'#04342C'}},
+  conseil:{L1:{f:'#5F5E5A',t:'#F1EFE8'},L2:{f:'#888780',t:'#F1EFE8'}},
+  blog:   {L1:{f:'#5F5E5A',t:'#F1EFE8'},L2:{f:'#F5F0E8',t:'#374151'}},
+  root:   {f:'#2C2C2A',t:'#F1EFE8'},
+};
+const PR={
+  ok:    {s:'#1D9E75',d:0,w:2},
+  act:   {s:'#EF9F27',d:0,w:2},
+  create:{s:'#E24B4A',d:0,w:2},
+  perf:  {s:'#378ADD',d:0,w:2},
+  inner: {s:'#888780',d:1,w:1.5},
+};
+const BC={event:'#378ADD',form:'#639922',inst:'#1D9E75',conseil:'#888780',blog:'#B4B2A9'};
+
+const D={l:'prevti.com',cl:'root',pr:'act',sub:'organisme formation sécurité au travail',url:'https://prevti.com',ch:[
+
+  {l:'Événementiel',cl:'event',lv:'L1',pr:'act',sub:'safety day / journée sécurité',url:'https://prevti.com/evenementiel',bi:'event',ch:[
+    {l:'Semaine QVCT / safety week',cl:'event',lv:'L2',pr:'create',sub:'→ semaine sécurité / semaine QVCT'},
+    {l:'Ateliers sécurité',cl:'event',lv:'L2',pr:'act',sub:'atelier sécurité entreprise',url:'https://prevti.com/evenementiel/ateliers-securite',ch:[
+      {l:'Quiz prévention',cl:'event',lv:'L3',pr:'inner',sub:'quiz sécurité travail'},
+      {l:'Escape game',cl:'event',lv:'L3',pr:'inner',sub:'escape game prévention'},
+      {l:'Enquête accident',cl:'event',lv:'L3',pr:'inner',sub:'enquête accident atelier'},
+      {l:'Vigilance partagée',cl:'event',lv:'L3',pr:'inner',sub:'stop vigilance partagée'},
+      {l:'Kart addict',cl:'event',lv:'L3',pr:'inner',sub:'atelier addictions travail'},
+      {l:'Chasse aux risques',cl:'event',lv:'L3',pr:'inner',sub:'chasse risques atelier'},
+      {l:"Prev'Lanta (TMS)",cl:'event',lv:'L3',pr:'inner',sub:'atelier gestes postures'},
+      {l:'EPI / défilé',cl:'event',lv:'L3',pr:'inner',sub:'atelier EPI entreprise'},
+    ]},
+    {l:'Ateliers bien-être',cl:'event',lv:'L1',pr:'act',sub:'atelier bien-être entreprise',url:'https://prevti.com/ateliers-bien-etre',ch:[
+      {l:'Réveil musculaire',cl:'event',lv:'L3',pr:'inner',sub:'réveil musculaire entreprise'},
+      {l:'Atelier relaxation',cl:'event',lv:'L3',pr:'inner',sub:'atelier relaxation entreprise'},
+      {l:'Atelier stress',cl:'event',lv:'L3',pr:'inner',sub:'atelier gestion stress'},
+      {l:'Atelier RPS',cl:'event',lv:'L3',pr:'inner',sub:'atelier RPS entreprise'},
+    ]},
+  ]},
+
+  {l:'Formation',cl:'form',lv:'L1',pr:'act',sub:'organisme formation sécurité travail',url:'https://prevti.com/formation',bi:'form',ch:[
+    {l:'Sécurité incendie',cl:'form',lv:'L2',pr:'act',sub:'formation sécurité incendie en entreprise',url:'https://prevti.com/formation/securite-incendie'},
+    {l:'SST – Secourisme',cl:'form',lv:'L2',pr:'act',sub:'formation secourisme en entreprise',url:'https://prevti.com/formation/secourisme'},
+    {l:'Travail en hauteur',cl:'form',lv:'L2',pr:'perf',sub:'Formation Travail en hauteur',url:'https://prevti.com/formation/travail-en-hauteur'},
+    {l:'Habilitation élec.',cl:'form',lv:'L2',pr:'act',sub:'formation risque électrique',url:'https://prevti.com/formation/habilitation-electrique'},
+    {l:'Gestes et postures',cl:'form',lv:'L2',pr:'act',sub:'Formation gestes et postures — TMS',url:'https://prevti.com/formation/gestes-et-postures'},
+    {l:'RPS',cl:'form',lv:'L2',pr:'act',sub:'Formation risques psychosociaux (RPS)',url:'https://prevti.com/formation/risques-psychosociaux'},
+    {l:'Niort',cl:'form',lv:'L1',pr:'act',sub:'→ Formation sécurité Niort',url:'https://prevti.com/formation-securite-a-niort-79'},
+    {l:'La Rochelle',cl:'form',lv:'L1',pr:'create',sub:'→ Formation sécurité La Rochelle'},
+  ]},
+
+  {l:'Conseil',cl:'conseil',lv:'L1',pr:'ok',sub:'conseil sécurité incendie ERP',url:'https://prevti.com/conseil',bi:'conseil',ch:[
+    {l:'Chargé de sécurité',cl:'conseil',lv:'L2',pr:'ok',sub:'chargé sécurité entreprise',url:'https://prevti.com/charge-de-securite'},
+    {l:'Courtage incendie',cl:'conseil',lv:'L2',pr:'ok',sub:'courtage sécurité incendie',url:'https://prevti.com/conseil/courtage'},
+    {l:'Protocole sécurité',cl:'conseil',lv:'L2',pr:'ok',sub:'protocole sécurité incendie',url:'https://prevti.com/conseil/protocole-securite'},
+    {l:'RUS',cl:'conseil',lv:'L2',pr:'ok',sub:'responsable unique sécurité',url:'https://prevti.com/conseil/responsable-unique-de-securite'},
+  ]},
+
+  {l:'Blog',cl:'blog',lv:'L1',pr:'ok',sub:'blog sécurité au travail',url:'https://prevti.com/blog',bi:'blog',ch:[
+    {l:'Top 10 animations sécu',cl:'blog',lv:'L2',pr:'perf',sub:'447 clics · à maintenir'},
+    {l:'Top 20 idées sécurité',cl:'blog',lv:'L2',pr:'perf',sub:'121 clics · à maintenir'},
+    {l:'Minute sécurité',cl:'blog',lv:'L2',pr:'perf',sub:'111 clics · à maintenir'},
+    {l:'Gestes postures : 9 pratiques',cl:'blog',lv:'L2',pr:'act',sub:'12 947 impr · réécrire title/méta'},
+    {l:'Culture sécurité',cl:'blog',lv:'L2',pr:'act',sub:'3 685 impr · title plus incitatif'},
+    {l:'Secourisme en entreprise',cl:'blog',lv:'L2',pr:'act',sub:'601 impr · 0 clic · à retravailler'},
+    {l:'Journée sécu : 9 questions',cl:'blog',lv:'L2',pr:'act',sub:'321 impr · enrichir + mailler'},
+    {l:'Animation safety day',cl:'blog',lv:'L2',pr:'act',sub:'252 impr · cohérence title/H1'},
+    {l:'Bien-être et performance',cl:'blog',lv:'L2',pr:'act',sub:'91 impr · angle à recentrer'},
+    {l:'Addictions travail',cl:'blog',lv:'L2',pr:'act',sub:'pos ~38 · enrichissement'},
+    {l:'Prévenir risques incendie',cl:'blog',lv:'L2',pr:'act',sub:'pos ~39 · maillage interne'},
+    {l:'Habilitation travail hauteur',cl:'blog',lv:'L2',pr:'act',sub:'pos ~40 · enrichissement'},
+    {l:'5 clés du safety day',cl:'blog',lv:'L2',pr:'act',sub:'pos ~41 · maillage interne'},
+    {l:'Comment organiser safety day',cl:'blog',lv:'L2',pr:'ok',sub:'comment organiser safety day'},
+    {l:'Sécurité routière : 12 idées',cl:'blog',lv:'L2',pr:'ok',sub:'sensibilisation risque routier'},
+    {l:'Réveil musculaire TMS',cl:'blog',lv:'L2',pr:'ok',sub:'réveil musculaire TMS'},
+    {l:'Certification Qualiopi',cl:'blog',lv:'L2',pr:'ok',sub:'formation Qualiopi certifiée'},
+    {l:'Guide semaine QVCT',cl:'blog',lv:'L2',pr:'create',sub:'→ organiser semaine QVCT'},
+  ]},
+
+  {l:'Institutionnel',cl:'inst',lv:'L1',pr:'ok',sub:'',bi:'inst',ch:[
+    {l:'Qui sommes-nous',cl:'inst',lv:'L2',pr:'ok',sub:'organisme prévention risques',url:'https://prevti.com/qui-sommes-nous'},
+    {l:'Contact / Devis',cl:'inst',lv:'L2',pr:'act',sub:'Contacter PREVTI — Sécurité La Rochelle',url:'https://prevti.com/contact'},
+    {l:'Mentions légales',cl:'inst',lv:'L2',pr:'ok',sub:'',url:'https://prevti.com/mentions-legales'},
+  ]},
+]};
+
+function mw(t,b,s){const c=document.getElementById('sz').getContext('2d');c.font=(b?'500 ':'400 ')+s+'px sans-serif';return c.measureText(t).width;}
+function nw(node,d){
+  const s=d===0?13:11,b=d===0;
+  const w1=mw(node.l,b,s)+PX*2+(node.ch&&node.ch.length?18:0);
+  const w2=node.sub?mw(node.sub,false,10)+PX*2:0;
+  return Math.max(w1,w2,d===0?100:d===1?130:150);
+}
+function th(node,d){
+  if(!node.ch||!node.ch.length||col.has(node.l)) return RH;
+  let h=0;node.ch.forEach((c,i)=>{h+=th(c,d+1)+(i>0?GAP:0)});
+  return Math.max(h,RH);
+}
+const col=new Set();
+function gc(node){
+  if(node.cl==='root') return{f:COL.root.f,t:COL.root.t};
+  const c=COL[node.cl];if(!c) return{f:'#888',t:'#fff'};
+  return c[node.lv||'L2']||c.L2||c.L1;
+}
+function render(){
+  const svg=document.getElementById('tree');svg.innerHTML='';
+  let tH=0;D.ch.forEach((c,i)=>{tH+=th(c,1)+(i>0?CGAP:0)});
+  tH=Math.max(tH,500);
+  const W=900,H=tH+80;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('width','100%');
+  svg.setAttribute('height',H);
+  const rw=nw(D,0),rx=10,ry=(H-RH)/2;
+  drawN(svg,D,rx,ry,rw,0,null);
+  let cY=30;
+  D.ch.forEach((child,ci)=>{
+    const ch=th(child,1),cy=cY+ch/2-RH/2,cw=nw(child,1),cx=rx+rw+IND;
+    const bc=BC[child.bi||child.cl]||'#888';
+    drawC(svg,rx+rw,ry+RH/2,cx,cy+RH/2,bc);
+    drawN(svg,child,cx,cy,cw,1,bc);
+    if(child.ch&&child.ch.length&&!col.has(child.l)){
+      let cY2=cY;
+      child.ch.forEach((grand,gi)=>{
+        const gh=th(grand,2),gy=cY2+gh/2-RH/2,gw=nw(grand,2),gx=cx+cw+IND;
+        drawC(svg,cx+cw,cy+RH/2,gx,gy+RH/2,bc);
+        drawN(svg,grand,gx,gy,gw,2,bc);
+        if(grand.ch&&grand.ch.length&&!col.has(grand.l)){
+          let cY3=cY2;
+          grand.ch.forEach((leaf,li)=>{
+            const ly=cY3+RH/2-RH/2,lw=nw(leaf,3),lx=gx+gw+IND;
+            const lbc=BC[leaf.cl]||bc;
+            drawC(svg,gx+gw,gy+RH/2,lx,ly+RH/2,lbc);
+            drawN(svg,leaf,lx,ly,lw,3,lbc);
+            cY3+=RH+(li<grand.ch.length-1?GAP:0);
+          });
+        }
+        cY2+=gh+(gi<child.ch.length-1?GAP:0);
+      });
+    }
+    cY+=ch+(ci<D.ch.length-1?CGAP:0);
+  });
+}
+function drawC(svg,x1,y1,x2,y2,color){
+  const mx=(x1+x2)/2,p=document.createElementNS(ns,'path');
+  p.setAttribute('d',`M${x1} ${y1} C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}`);
+  p.setAttribute('fill','none');p.setAttribute('stroke',color);
+  p.setAttribute('stroke-width','1.5');p.setAttribute('stroke-linecap','round');
+  svg.appendChild(p);
+}
+function drawN(svg,node,x,y,w,depth,bc){
+  const c=gc(node),p=PR[node.pr]||PR.ok,hasSub=node.sub&&node.sub.length>0,ren=hasSub&&node.sub.startsWith('→');
+  const g=document.createElementNS(ns,'g');
+  g.setAttribute('class',node.url?'nd cl':'nd');
+  const r=document.createElementNS(ns,'rect');
+  r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',RH);
+  r.setAttribute('rx',4);r.setAttribute('fill',c.f);r.setAttribute('stroke',p.s);r.setAttribute('stroke-width',p.w);
+  if(p.d) r.setAttribute('stroke-dasharray','5 3');
+  g.appendChild(r);
+  const sz=depth===0?13:11,bold=depth===0;
+  const tY=hasSub?y+RH*0.34:y+RH/2;
+  const t=document.createElementNS(ns,'text');
+  t.setAttribute('x',x+w/2);t.setAttribute('y',tY);t.setAttribute('text-anchor','middle');
+  t.setAttribute('dominant-baseline','central');t.setAttribute('fill',c.t);
+  t.setAttribute('font-size',sz);t.setAttribute('font-weight',bold?'500':'400');
+  t.setAttribute('font-family','sans-serif');t.textContent=node.l;
+  g.appendChild(t);
+  if(hasSub){
+    const st=node.sub;
+    const s=document.createElementNS(ns,'text');
+    s.setAttribute('x',x+w/2);s.setAttribute('y',y+RH*0.70);s.setAttribute('text-anchor','middle');
+    s.setAttribute('dominant-baseline','central');s.setAttribute('fill',ren?'#EF9F27':c.t);
+    s.setAttribute('font-size',10);s.setAttribute('font-weight',ren?'500':'400');
+    s.setAttribute('font-family','sans-serif');s.setAttribute('opacity',ren?'1':'0.75');
+    s.textContent=st;g.appendChild(s);
+  }
+  if(node.ch&&node.ch.length){
+    const dot=document.createElementNS(ns,'g');dot.style.cursor='pointer';
+    const ci=document.createElementNS(ns,'circle');
+    ci.setAttribute('cx',x+w-8);ci.setAttribute('cy',y+RH/2);ci.setAttribute('r',5.5);ci.setAttribute('fill',p.s);
+    const si=document.createElementNS(ns,'text');
+    si.setAttribute('x',x+w-8);si.setAttribute('y',y+RH/2);si.setAttribute('text-anchor','middle');
+    si.setAttribute('dominant-baseline','central');si.setAttribute('fill','#fff');
+    si.setAttribute('font-size',10);si.setAttribute('font-weight','500');si.setAttribute('font-family','sans-serif');
+    si.textContent=col.has(node.l)?'+':'−';
+    dot.appendChild(ci);dot.appendChild(si);
+    dot.addEventListener('click',e=>{e.stopPropagation();col.has(node.l)?col.delete(node.l):col.add(node.l);render();});
+    g.appendChild(dot);
+  }
+  if(node.url){
+    let drag=false;
+    g.addEventListener('mousedown',()=>{drag=false});
+    g.addEventListener('mousemove',()=>{drag=true});
+    g.addEventListener('mouseup',()=>{if(!drag)window.open(node.url,'_blank')});
+  }
+  svg.appendChild(g);
+}
+render();
+</script>
+</body>
+</html>
